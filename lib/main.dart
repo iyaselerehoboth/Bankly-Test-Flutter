@@ -1,3 +1,4 @@
+import 'package:bankly_challenge_flutter/screens/home.dart';
 import 'package:bankly_challenge_flutter/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'TRANSACTIONS'),
+      //home: const MyHomePage(title: 'TRANSACTIONS'),
+      home: const Home(),
     );
   }
 }
@@ -83,31 +85,29 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         leading: const Icon(Icons.arrow_back)
       ),
-      body: Container(
-        child: FutureBuilder(
-          future: getTransactions(),
-          builder: (BuildContext context, AsyncSnapshot snapshot){
-            if(snapshot.hasError){
-              return Center(
-                child: Text('${snapshot.error}')
+      body: FutureBuilder(
+        future: getTransactions(),
+        builder: (BuildContext context, AsyncSnapshot snapshot){
+          if(snapshot.hasError){
+            return Center(
+              child: Text('${snapshot.error}')
+            );
+          } else if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+                itemBuilder:(BuildContext context, int index){
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(snapshot.data[index].logourl),
+                ),
+                title: Text(snapshot.data[index].source),
+                subtitle: Text(formatDate(snapshot.data[index].trnDate)),
               );
-            } else if (snapshot.hasData) {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                  itemBuilder:(BuildContext context, int index){
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(snapshot.data[index].logourl),
-                  ),
-                  title: Text(snapshot.data[index].source),
-                  subtitle: Text(formatDate(snapshot.data[index].trnDate)),
-                );
-              });
-            } else {
-              return const CircularProgressIndicator();
-            }
-          },
-        ),
+            });
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
       ),
     );
   }
